@@ -124,7 +124,14 @@ router.get('/getTaskById/:id', auth, async (req, res) => {
 
 router.get('/tasks', auth, async (req, res) => {
     try {
-        const tasks = await Task.find({ owner: req.user.id });
+        const match = {};
+        if (req.query.completed) {
+            match.completed = req.query.completed === 'true';
+        }
+        const tasks = await Task.find({
+            owner: req.user.id,
+            completed: match.completed,
+         }).skip(parseInt(req.query.skip, 10)).limit(parseInt(req.query.limit, 10));
         res.send(tasks);
     } catch (e) {
         res.status(500).send(e);
